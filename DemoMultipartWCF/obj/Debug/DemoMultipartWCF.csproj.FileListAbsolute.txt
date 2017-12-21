@@ -1,0 +1,6 @@
+D:\DemoProject\DemoMultipartWCF\DemoMultipartWCF\bin\DemoMultipartWCF.dll.config
+D:\DemoProject\DemoMultipartWCF\DemoMultipartWCF\bin\DemoMultipartWCF.dll
+D:\DemoProject\DemoMultipartWCF\DemoMultipartWCF\bin\DemoMultipartWCF.pdb
+D:\DemoProject\DemoMultipartWCF\DemoMultipartWCF\obj\Debug\DemoMultipartWCF.csprojResolveAssemblyReference.cache
+D:\DemoProject\DemoMultipartWCF\DemoMultipartWCF\obj\Debug\DemoMultipartWCF.dll
+D:\DemoProject\DemoMultipartWCF\DemoMultipartWCF\obj\Debug\DemoMultipartWCF.pdb
