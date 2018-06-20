@@ -1,126 +1,145 @@
-﻿using DemoMultipartWCF.DataContract;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
+package hello;
 
-namespace DemoMultipartWCF
-{
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Users" in code, svc and config file together.
-    // NOTE: In order to launch WCF Test Client for testing this service, please select Users.svc or Users.svc.cs at the Solution Explorer and start debugging.
-    public class Users : IUsers
-    {
-        //Require Namespace: using System.IO
-        public bool UpdateUserDetail(Stream stream)
-        {
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
-            try
-            {
-                //Create an Object of byte[]
-                byte[] buf = new byte[10000000];
+import com.jayway.jsonpath.JsonPath;
+import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-                //Initialise an Object of MultipartParser Class With Requested Stream
-                MultipartParser parser = new MultipartParser(stream);
+import java.io.FileInputStream;
+import java.time.Clock;
 
-                //Check that we have not null value in requested stream
-                if (parser != null && parser.Success)
-                {
-                    //Fetch Requested Formdata (content) 
-                    //(for this example our requested formdata are UserName[String])
-                    foreach (var item in parser.MyContents)
-                    {
-                        //Check our requested fordata
-                        if (item.PropertyName == "UserName")
-                        {
-                            string RequestedName = item.StringData;
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+public class HelloControllerTest {
 
-                        }
-                    }
+    private MockMvc mvc;
 
-                    //Create a GUID for Image Name
-                    string ImageName = Guid.NewGuid().ToString();
 
-                    //Image Path
-                    string SaveImagePath = "D:/DemoProject/DemoMultipartWCF/DemoMultipartWCF/MyFile/";
+    @Mock
+    public service ser;
 
-                    //Ensure That WE have the right path and Directory
-                    if (!Directory.Exists(SaveImagePath))
-                    {
-                        //If Directory Not Exists Then Create a Directory
-                        Directory.CreateDirectory(SaveImagePath);
-                    }
+    @InjectMocks
+    public HelloController helloCont;
 
-                    //Fetch File Content & Save that Image HERE (for this example our requested FileContent is ProfilePicture[File])
-                    string ImagePathWithImageName = SaveImagePath + ImageName + ".bmp";
-                    SaveImageFile(parser.FileContents, ImagePathWithImageName);
+/*
 
-                    return true;
-                }
+    @Before
+    public void setup() throws Exception{
+        mvc = MockMvcBuilders.standaloneSetup(helloCont).build();
+    }
+    @Test
+    public void getHello() throws Exception {
+     mvc.perform(get("/create")).andExpect(status().isOk())
+             .andExpect(content().string("Greetings from Spring Boot!"));
 
-                return false;
-            }
-            catch
-            {
-                //Do Code For Log or Handle Exception 
-                return false;
-            }
+    }
 
+    @Test
+    public void TestBiologyClass() throws Exception {
+        mvc.perform(get("/biology").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.studentName", Matchers.is("Fucker")))
+                .andExpect(jsonPath("$.studentAge",Matchers.is("25")));
+    }
+
+    @Test
+    public void testPostBody() throws Exception {
+
+        byte[] mockData = "test".getBytes();
+        String originalFilename = "sample.out.zip";
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("file", originalFilename, "application/zip", mockData);
+
+        MockHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.multipart("/uploadFile")
+                        .file(mockMultipartFile)
+                .param("key","1537878e278378");
+
+
+        MvcResult result = mvc.perform(builder)
+                .andExpect(status().isOk())
+                .andReturn();
+        assertNotNull(result.getResponse().getContentAsString());
+                //.andExpect(jsonPath("$.*", Matchers.hasSize(1)));
+                //.andExpect(jsonPath("$.studentAge",Matchers.is("25")));
+    }
+*/
+
+    @Autowired
+    private UserMongoRepository userMongoRepository;
+
+    @Before
+    public void setUp() throws Exception {
+         user user1= new user("Alice", 23);
+        user user2= new user("Bob", 38);
+        //save product, verify has ID value after save
+        assertNull(user1.getId());
+        assertNull(user2.getId());//null before save
+        this.userMongoRepository.save(user1);
+        this.userMongoRepository.save(user2);
+
+        assertNotNull(user1.getId());
+        assertNotNull(user2.getId());
+    }
+
+
+    @Test
+    public void testFetchData(){
+        /*Test data retrieval*/
+        user userA = userMongoRepository.findByName("Bob");
+        assertNotNull(userA);
+        assertEquals(38, userA.getAge());
+        /*Get all products, list should only have two*/
+        Iterable<user> users = userMongoRepository.findAll();
+        int count = 0;
+        for(user p : users){
+            count++;
         }
-
-        //Method For Save Image File 
-        public static bool SaveImageFile(byte[] ImageFileContent, string ImagePathWithImageName)
-        {
-            try
-            {
-                //Require Namespace: using System.Drawing
-                Image image;
-
-                //Read Image File
-                using (MemoryStream ms = new MemoryStream(ImageFileContent))
-                {
-                    image = Image.FromStream(ms);
-                }
-
-                Bitmap bmp = new Bitmap(image);
-
-                //Require Namespace: System.Drawing.Imaging
-                ImageCodecInfo jgpEncoder = GetEncoder(ImageFormat.Jpeg);
-
-                //We need to write Encoder with Root otherwise it is an ambiguous between "System.Drawing.Imaging.Encoder" and "System.Text.Encoder"
-                System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
-                EncoderParameters myEncoderParameters = new EncoderParameters(1);
-                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 40L);
-                myEncoderParameters.Param[0] = myEncoderParameter;
-                bmp.Save(ImagePathWithImageName, jgpEncoder, myEncoderParameters);
-
-                return true;
-            }
-            catch
-            {
-                //Do Code For Log or Handle Exception 
-                return false;
-            }
-        }
-
-        //ImageCodecInfo:- It provides the necessary storage members and methods to retrieve all pertinent information about the installed image codecs.
-        public static ImageCodecInfo GetEncoder(ImageFormat format)
-        {
-            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
-            foreach (ImageCodecInfo codec in codecs)
-            {
-                if (codec.FormatID == format.Guid)
-                {
-                    return codec;
-                }
-            }
-            return null;
-        }
+        assertEquals(count, 2);
+    }
 
 
+
+    @Test
+    public void testDataUpdate(){
+        /*Test update*/
+        user userB = userMongoRepository.findByName("chan");
+        userB.setAge(40);
+        userMongoRepository.save(userB);
+        user userC= userMongoRepository.findByName("chan");
+        assertNotNull(userC);
+        assertEquals(40, userC.getAge());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        //this.userMongoRepository.deleteAll();
     }
 }
